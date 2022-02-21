@@ -69,4 +69,31 @@ public class TaskControllerIT {
 
         }
     }
+
+    @Nested
+    class GetTaskTests {
+
+        @Test
+        void should_return_404_on_not_existing_task_id() throws Exception {
+            // When
+            mvc.perform(get(TaskController.PATH + "/{id}", 1))
+                    // Then
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void should_get_task_by_id() throws Exception {
+            // Given
+            TaskService.TASKS.add(new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0)));
+
+            // When
+            mvc.perform(get(TaskController.PATH + "/{id}", 1))
+
+                    // Then
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value("todo 1"))
+                    .andExpect(jsonPath("$.description").value("desc 1"))
+                    .andExpect(jsonPath("$.dateTime").value("2022-01-01T10:00:00"));
+        }
+    }
 }
