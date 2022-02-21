@@ -51,6 +51,19 @@ public class TaskController {
         return ResponseEntity.created(createdUri).build();
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateTask(@PathVariable("id") Long id, @RequestBody Task newTask) {
+       return TASKS.stream()
+                .filter(task -> task.getId().equals(id))
+                .findFirst()
+                .map(task -> {
+                    task.setName(newTask.getName());
+                    task.setDescription(newTask.getDescription());
+                    task.setDateTime(newTask.getDateTime());
+                    return ResponseEntity.ok(task);
+                }).orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTask(@PathVariable("id") Long id) {
         var deleted = TASKS.removeIf(task -> task.getId().equals(id));

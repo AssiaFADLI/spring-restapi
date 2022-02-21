@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -90,6 +91,70 @@ public class TaskControllerIT {
                     .element(0)
                     .extracting(Task::getId, Task::getName, Task::getDescription, Task::getDateTime)
                     .containsExactly(0L, "todo", "desc", LocalDateTime.parse("2023-01-02T10:00:00"));
+
+        }
+    }
+
+    @Nested
+    class UpdateTaskTests {
+
+        @Test
+        void should_return_404_on_not_existing_task_id() throws Exception {
+            // Given
+            var body = objectMapper.createObjectNode()
+                    .put("name", "todo")
+                    .put("description", "desc")
+                    .put("dateTime", "2023-01-02T10:00:00")
+                    .toString();
+            Task task = new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0));
+            TaskController.TASKS.add(task);
+
+            // When
+            mvc.perform(put(TaskController.PATH + "/{id}", 99)
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .content(body))
+                    // Then
+                    .andExpect(status().isNotFound());
+
+            assertThat(TaskController.TASKS).containsExactly(task);
+        }
+
+        @Test
+        void should_update_task() throws Exception {
+            // Given
+            var body = objectMapper.createObjectNode()
+                    .put("name", "new name")
+                    .put("description", "new desc")
+                    .put("dateTime", "2023-02-02T12:00:00")
+                    .toString();
+            TaskController.TASKS.add(new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0)));
+
+            // When
+            mvc.perform(put(TaskController.PATH + "/{id}", 1)
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .content(body))
+                    // Then
+                    .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", equalTo(1)))
+            .andExpect(jsonPath("$.name", equalTo("new name")))
+            .andExpect(jsonPath("$.description", equalTo("new desc")))
+            .andExpect(jsonPath("$.dateTime", equalTo("2023-02-02T12:00:00")));
+
+            assertThat(TaskController.TASKS)
+                    .extracting(Task::getId, Task::getName, Task::getDescription, Task::getDateTime)
+                    .containsExactly(
+                            tuple(1L,"new name", "new desc", LocalDateTime.parse("2023-02-02T12:00:00"))
+                    );
+
+            //ou
+            /*assertThat(TaskController.TASKS).hasSize(1)
+                    .element(0)
+                    .extracting(Task::getId, Task::getName, Task::getDescription, Task::getDateTime)
+                    .containsExactly(1L,"new name", "new desc", LocalDateTime.parse("2023-02-02T12:00:00"));*/
+            //ou
+            /*assertThat(TaskController.TASKS)
+                    .flatExtracting(Task::getId, Task::getName, Task::getDescription, Task::getDateTime)
+                    .containsExactly(1L,"new name", "new desc", LocalDateTime.parse("2023-02-02T12:00:00"));*/
 
         }
     }
