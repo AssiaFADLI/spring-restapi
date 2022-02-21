@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TaskControllerIT {
+public class TaskControllerV1IT {
 
     private MockMvc mvc;
     @Autowired
@@ -37,7 +37,7 @@ public class TaskControllerIT {
     public void setup() {
         this.mvc = MockMvcBuilders.webAppContextSetup(context).build();
 
-        TaskController.TASKS.clear();
+        TaskControllerV1.TASKS.clear();
     }
 
     @Nested
@@ -46,7 +46,7 @@ public class TaskControllerIT {
         @Test
         void should_return_404_on_not_existing_task_id() throws Exception {
             // When
-            mvc.perform(get(TaskController.PATH + "/{id}", 1))
+            mvc.perform(get(TaskControllerV1.PATH + "/{id}", 1))
                     // Then
                     .andExpect(status().isNotFound());
         }
@@ -54,10 +54,10 @@ public class TaskControllerIT {
         @Test
         void should_get_task_by_id() throws Exception {
             // Given
-            TaskController.TASKS.add(new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0)));
+            TaskControllerV1.TASKS.add(new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0)));
 
             // When
-            mvc.perform(get(TaskController.PATH + "/{id}", 1))
+            mvc.perform(get(TaskControllerV1.PATH + "/{id}", 1))
 
                     // Then
                     .andExpect(status().isOk())
@@ -80,14 +80,14 @@ public class TaskControllerIT {
                     .toString();
 
             // When
-            mvc.perform(post(TaskController.PATH)
+            mvc.perform(post(TaskControllerV1.PATH)
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .content(body))
                     // Then
                     .andExpect(status().isCreated())
                     .andExpect(header().stringValues("location", "http://localhost/api/v1/tasks/0"));
 
-            assertThat(TaskController.TASKS).hasSize(1)
+            assertThat(TaskControllerV1.TASKS).hasSize(1)
                     .element(0)
                     .extracting(Task::getId, Task::getName, Task::getDescription, Task::getDateTime)
                     .containsExactly(0L, "todo", "desc", LocalDateTime.parse("2023-01-02T10:00:00"));
@@ -107,16 +107,16 @@ public class TaskControllerIT {
                     .put("dateTime", "2023-01-02T10:00:00")
                     .toString();
             Task task = new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0));
-            TaskController.TASKS.add(task);
+            TaskControllerV1.TASKS.add(task);
 
             // When
-            mvc.perform(put(TaskController.PATH + "/{id}", 99)
+            mvc.perform(put(TaskControllerV1.PATH + "/{id}", 99)
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .content(body))
                     // Then
                     .andExpect(status().isNotFound());
 
-            assertThat(TaskController.TASKS).containsExactly(task);
+            assertThat(TaskControllerV1.TASKS).containsExactly(task);
         }
 
         @Test
@@ -127,10 +127,10 @@ public class TaskControllerIT {
                     .put("description", "new desc")
                     .put("dateTime", "2023-02-02T12:00:00")
                     .toString();
-            TaskController.TASKS.add(new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0)));
+            TaskControllerV1.TASKS.add(new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0)));
 
             // When
-            mvc.perform(put(TaskController.PATH + "/{id}", 1)
+            mvc.perform(put(TaskControllerV1.PATH + "/{id}", 1)
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .content(body))
                     // Then
@@ -140,7 +140,7 @@ public class TaskControllerIT {
             .andExpect(jsonPath("$.description", equalTo("new desc")))
             .andExpect(jsonPath("$.dateTime", equalTo("2023-02-02T12:00:00")));
 
-            assertThat(TaskController.TASKS)
+            assertThat(TaskControllerV1.TASKS)
                     .extracting(Task::getId, Task::getName, Task::getDescription, Task::getDateTime)
                     .containsExactly(
                             tuple(1L,"new name", "new desc", LocalDateTime.parse("2023-02-02T12:00:00"))
@@ -165,27 +165,27 @@ public class TaskControllerIT {
         @Test
         void should_return_404_on_not_existing_task_id() throws Exception {
             // Given
-            TaskController.TASKS.add(new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0)));
+            TaskControllerV1.TASKS.add(new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0)));
 
             // When
-            mvc.perform(delete(TaskController.PATH + "/{id}", 99))
+            mvc.perform(delete(TaskControllerV1.PATH + "/{id}", 99))
                     // Then
                     .andExpect(status().isNotFound());
 
-            assertThat(TaskController.TASKS).hasSize(1);
+            assertThat(TaskControllerV1.TASKS).hasSize(1);
         }
 
         @Test
         void should_delete_task_by_id() throws Exception {
             // Given
-            TaskController.TASKS.add(new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0)));
+            TaskControllerV1.TASKS.add(new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0)));
 
             // When
-            mvc.perform(delete(TaskController.PATH + "/{id}", 1))
+            mvc.perform(delete(TaskControllerV1.PATH + "/{id}", 1))
                     // Then
                     .andExpect(status().isNoContent());
 
-            assertThat(TaskController.TASKS).hasSize(0);
+            assertThat(TaskControllerV1.TASKS).hasSize(0);
         }
     }
 }

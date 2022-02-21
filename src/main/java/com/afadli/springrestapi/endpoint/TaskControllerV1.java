@@ -20,8 +20,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @ControllerAdvice
 @RestController
-@RequestMapping(TaskController.PATH)
-public class TaskController {
+@RequestMapping(TaskControllerV1.PATH)
+public class TaskControllerV1 {
     public static final String PATH = "/api/v1/tasks";
 
     public static final List<Task> TASKS = new ArrayList(0);
