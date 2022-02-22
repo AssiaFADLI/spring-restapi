@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.afadli.springrestapi.exception.TaskNotFoundException;
 import com.afadli.springrestapi.model.Task;
+import lombok.SneakyThrows;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,4 +32,18 @@ public class TaskService {
                 .findFirst()
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
+
+    public Task updateTask(Long id, Task newTask) throws TaskNotFoundException {
+        var updatedTask = TASKS.stream()
+                .filter(task -> task.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new TaskNotFoundException(id));
+
+        updatedTask.setName(newTask.getName());
+        updatedTask.setDescription(newTask.getDescription());
+        updatedTask.setDateTime(newTask.getDateTime());
+
+        return updatedTask;
+    }
+
 }
