@@ -35,24 +35,28 @@ public class TaskController {
                 .path("/{id}")
                 .buildAndExpand(Map.of("id", createdTask.getId()))
                 .toUri();
-        return ResponseEntity.created(createdUri).build();
+        return ResponseEntity
+                .created(createdUri)
+                .build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getTask(@PathVariable("id") Long id) {
         try {
-            return ResponseEntity.ok(taskService.getTask(id));
+            var task = taskService.getTask(id);
+            return ResponseEntity.ok(task);
         } catch (TaskNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
+            return handleNotFoundException(e);
         }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTask(@PathVariable("id") Long id, @RequestBody Task newTask) {
         try {
-            return ResponseEntity.ok(taskService.updateTask(id, newTask));
+            var task = taskService.updateTask(id, newTask);
+            return ResponseEntity.ok(task);
         } catch (TaskNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
+            return handleNotFoundException(e);
         }
     }
 
@@ -60,9 +64,18 @@ public class TaskController {
     public ResponseEntity<?> deleteTask(@PathVariable("id") Long id) {
         try {
             taskService.deleteTask(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity
+                    .noContent()
+                    .build();
         } catch (TaskNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
+            return handleNotFoundException(e);
         }
     }
+
+    private static ResponseEntity<TaskNotFoundException> handleNotFoundException(TaskNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(e);
+    }
+
 }

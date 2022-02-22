@@ -35,7 +35,6 @@ public class TaskService {
 
     public Task updateTask(Long id, Task newTask) throws TaskNotFoundException {
         var updatedTask = getTask(id);
-
         updatedTask.setName(newTask.getName());
         updatedTask.setDescription(newTask.getDescription());
         updatedTask.setDateTime(newTask.getDateTime());
