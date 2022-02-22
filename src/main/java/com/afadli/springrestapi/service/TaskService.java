@@ -34,10 +34,7 @@ public class TaskService {
     }
 
     public Task updateTask(Long id, Task newTask) throws TaskNotFoundException {
-        var updatedTask = TASKS.stream()
-                .filter(task -> task.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new TaskNotFoundException(id));
+        var updatedTask = getTask(id);
 
         updatedTask.setName(newTask.getName());
         updatedTask.setDescription(newTask.getDescription());
@@ -46,4 +43,8 @@ public class TaskService {
         return updatedTask;
     }
 
+    public void deleteTask(Long id) throws TaskNotFoundException {
+        var task = getTask(id);
+        TASKS.remove(task);
+    }
 }

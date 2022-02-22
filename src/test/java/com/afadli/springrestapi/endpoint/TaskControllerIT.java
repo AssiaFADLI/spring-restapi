@@ -161,4 +161,34 @@ public class TaskControllerIT {
 
         }
     }
+
+    @Nested
+    class DeleteTaskTests {
+
+        @Test
+        void should_return_404_on_not_existing_task_id() throws Exception {
+            // Given
+            TaskService.TASKS.add(new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0)));
+
+            // When
+            mvc.perform(delete(TaskController.PATH + "/{id}", 99))
+                    // Then
+                    .andExpect(status().isNotFound());
+
+            assertThat(TaskService.TASKS).hasSize(1);
+        }
+
+        @Test
+        void should_delete_task_by_id() throws Exception {
+            // Given
+            TaskService.TASKS.add(new Task(1L, "todo 1", "desc 1", LocalDateTime.of(2022, 1, 1, 10, 0)));
+
+            // When
+            mvc.perform(delete(TaskController.PATH + "/{id}", 1))
+                    // Then
+                    .andExpect(status().isNoContent());
+
+            assertThat(TaskControllerV1.TASKS).hasSize(0);
+        }
+    }
 }
